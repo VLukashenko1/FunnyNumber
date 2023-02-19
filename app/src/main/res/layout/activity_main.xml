@@ -62,4 +62,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        app:layoutManager="LinearLayoutManager"
+
+        android:id="@+id/recyclerViewHistoryMain"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/getRandFactBtnMain" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

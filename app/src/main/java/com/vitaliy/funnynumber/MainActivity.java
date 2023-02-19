@@ -2,7 +2,7 @@ package com.vitaliy.funnynumber;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -12,7 +12,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.vitaliy.funnynumber.Adapter.HistoryAdapter;
+import com.vitaliy.funnynumber.Room.History;
 import com.vitaliy.funnynumber.Util.FactDownloaderNetworkUtil;
+
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Flowable;
@@ -23,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     Button getRandFact, getFact;
     EditText numberInput;
     ProgressBar progressBar;
+    RecyclerView recyclerViewHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         getFact = findViewById(R.id.getFactBtnMain);
         numberInput = findViewById(R.id.numberInputMain);
         progressBar = findViewById(R.id.progressBar);
+        recyclerViewHistory = findViewById(R.id.recyclerViewHistoryMain);
 
         getFact.setOnClickListener(v -> getFact());
         numberInput.setOnKeyListener((view, keyKode, keyEvent) -> {
@@ -43,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getRandFact.setOnClickListener(v -> getRandFact());
+
+        buildRecyclerView();
     }
 
     void getFact() {
@@ -86,6 +96,19 @@ public class MainActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.INVISIBLE);
                     makeResultDialog(s);
                 });
+    }
+
+    void buildRecyclerView(){
+        List<History> historyList;
+        if (App.getInstance().getHistoryDAO().getAll() == null){
+            historyList = new ArrayList<>();
+        }
+        else {
+            historyList = App.getInstance().getHistoryDAO().getAll();
+        }
+        HistoryAdapter historyAdapter = new HistoryAdapter(this,
+                historyList, this);
+        recyclerViewHistory.setAdapter(historyAdapter);
     }
 
     void makeText(String text) {

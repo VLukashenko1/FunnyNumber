@@ -40,6 +40,7 @@ public class FactDownloaderNetworkUtil {
                 return "Fact not found try again";
             }
             Log.d(LOG_TAG, "success fact loading");
+            HistorySaver.saveResultToHistory(fact);
             return fact;
         }
         catch (IOException e) {
@@ -64,6 +65,7 @@ public class FactDownloaderNetworkUtil {
                 return "Fact not found try again";
             }
             Log.d(LOG_TAG, "success fact loading");
+            HistorySaver.saveResultToHistory(fact);
             return fact;
         }
         catch (IOException e) {

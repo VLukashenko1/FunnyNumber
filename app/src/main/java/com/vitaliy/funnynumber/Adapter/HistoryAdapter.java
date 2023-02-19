@@ -22,7 +22,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private List<History> historyList;
     private final LifecycleOwner lifecycleOwner;
 
-    HistoryAdapter(Context context, List<History> historyList, LifecycleOwner lifecycleOwner){
+    public HistoryAdapter(Context context, List<History> historyList, LifecycleOwner lifecycleOwner){
         this.inflater = LayoutInflater.from(context);
         this.historyList = historyList;
         this.lifecycleOwner = lifecycleOwner;
@@ -48,7 +48,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return 0;
+        return historyList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
