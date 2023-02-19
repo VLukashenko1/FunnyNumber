@@ -17,14 +17,6 @@ public class FactDownloaderNetworkUtil {
     private static final FactDownloaderNetworkUtil holder = new FactDownloaderNetworkUtil();
     public static FactDownloaderNetworkUtil getInstance(){return holder;}
 
-    public static boolean isOpenNetwork(Context context){
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager.getActiveNetworkInfo() != null){
-            return connectivityManager.getActiveNetworkInfo().isAvailable();
-        }
-        return false;
-    }
-
     public String getFact(int number){
         try{
             URL url = new URL(Data.stringUrlNumber + number);

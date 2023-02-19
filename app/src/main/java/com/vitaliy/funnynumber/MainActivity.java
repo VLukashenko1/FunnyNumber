@@ -2,6 +2,7 @@ package com.vitaliy.funnynumber;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
@@ -14,15 +15,10 @@ import android.widget.Toast;
 
 import com.vitaliy.funnynumber.Adapter.HistoryAdapter;
 import com.vitaliy.funnynumber.Room.History;
-import com.vitaliy.funnynumber.Util.FactDownloaderNetworkUtil;
 
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,10 +27,14 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     RecyclerView recyclerViewHistory;
 
+    private MainActivityViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        viewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         getRandFact = findViewById(R.id.getRandFactBtnMain);
         getFact = findViewById(R.id.getFactBtnMain);
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         getFact.setOnClickListener(v -> getFact());
         numberInput.setOnKeyListener((view, keyKode, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && keyKode == KeyEvent.KEYCODE_ENTER){
+            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && keyKode == KeyEvent.KEYCODE_ENTER) {
                 getFact();
             }
             return false;
@@ -57,67 +57,59 @@ public class MainActivity extends AppCompatActivity {
 
     void getFact() {
         progressBar.setVisibility(View.VISIBLE);
+        viewModel.getFact(numberInput);
+        viewModel.getMutableLiveDataFact().observe(this, result ->{
+            if(result ==null) return;
+            if (result.containsKey(MainActivityViewModel.TOAST_REQUEST_CODE)){
+                progressBar.setVisibility(View.INVISIBLE);
+                makeText(result.get(MainActivityViewModel.TOAST_REQUEST_CODE));
+            }
+            else if (result.containsKey(MainActivityViewModel.ALERT_REQUEST_CODE)){
+                progressBar.setVisibility(View.INVISIBLE);
+                makeResultDialog(result.get(MainActivityViewModel.ALERT_REQUEST_CODE));
+            }
+        });
 
-        if (numberInput == null || numberInput.getText() == null || numberInput.getText().toString().isEmpty()) {
-            makeText("Enter a number to get a fact about it");
-            progressBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-        if (!FactDownloaderNetworkUtil.isOpenNetwork(this)) {
-            makeText("no internet connection");
-            progressBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        int number = Integer.parseInt(numberInput.getText().toString());
-
-        Flowable.fromCallable(() -> FactDownloaderNetworkUtil.getInstance().getFact(number))
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    if (s == null || s.isEmpty()) return;
-                    progressBar.setVisibility(View.INVISIBLE);
-                    makeResultDialog(s);
-                });
         numberInput.setText("");
     }
 
     void getRandFact() {
         progressBar.setVisibility(View.VISIBLE);
-        if (!FactDownloaderNetworkUtil.isOpenNetwork(this)) {
-            makeText("no internet connection");
-            return;
-        }
-        Flowable.fromCallable(() -> FactDownloaderNetworkUtil.getInstance().getRandFact())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    if (s == null || s.isEmpty()) return;
-                    progressBar.setVisibility(View.INVISIBLE);
-                    makeResultDialog(s);
-                });
+
+        viewModel.getRandFact();
+
+        viewModel.getMutableLiveDataFact().observe(this, result ->{
+            if(result ==null) return;
+            if (result.containsKey(MainActivityViewModel.TOAST_REQUEST_CODE)){
+                progressBar.setVisibility(View.INVISIBLE);
+                makeText(result.get(MainActivityViewModel.TOAST_REQUEST_CODE));
+            }
+            else if (result.containsKey(MainActivityViewModel.ALERT_REQUEST_CODE)){
+                progressBar.setVisibility(View.INVISIBLE);
+                makeResultDialog(result.get(MainActivityViewModel.ALERT_REQUEST_CODE));
+            }
+        });
+
     }
 
-    void buildRecyclerView(){
-        List<History> historyList;
-        if (App.getInstance().getHistoryDAO().getAll() == null){
+    void buildRecyclerView() {
+        List<History> historyList = App.getInstance().getHistoryDAO().getAll();
+        if (historyList == null) {
             historyList = new ArrayList<>();
         }
-        else {
-            historyList = App.getInstance().getHistoryDAO().getAll();
-        }
-        HistoryAdapter historyAdapter = new HistoryAdapter(this,
-                historyList, this);
+        HistoryAdapter historyAdapter = new HistoryAdapter(this, historyList, this);
         recyclerViewHistory.setAdapter(historyAdapter);
     }
 
     void makeText(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        viewModel.getMutableLiveDataFact().setValue(new HashMap<>());
     }
 
     void makeResultDialog(String result) {
         AlertDialog.Builder resultDialog = new AlertDialog.Builder(this);
         resultDialog.setMessage(result).setCancelable(false).setPositiveButton("Ok", ((dialogInterface, i) -> {
+            viewModel.getMutableLiveDataFact().setValue(new HashMap<>());
             return;
         }));
         AlertDialog alertDialog = resultDialog.create();
