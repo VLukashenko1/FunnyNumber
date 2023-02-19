@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">FunnyNumber</string>
+
+    <string name="get_fact_btn">get fact</string>
+    <string name="enter_number_plainText">enter number</string>
+    <string name="get_rand_fact_btn">Get fact about random number</string>
 </resources>
