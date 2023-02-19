@@ -1,6 +1,7 @@
 package com.vitaliy.funnynumber;
 
 import android.app.Application;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
@@ -17,6 +18,8 @@ public class App extends Application {
         return holder;
     }
 
+    private ClipboardManager clipboardManager;
+
     private AppDatabase database;
     private HistoryDAO historyDAO;
     public AppDatabase getDatabase() {
@@ -26,14 +29,12 @@ public class App extends Application {
         return historyDAO;
     }
 
-    static Context context;
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         holder = this;
-        context = this;
+        clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
         database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "request-history")
                 .allowMainThreadQueries()
@@ -41,12 +42,15 @@ public class App extends Application {
         historyDAO = database.historyDao();
     }
 
-    public static boolean isOpenNetwork(){
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public  boolean isOpenNetwork(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager.getActiveNetworkInfo() != null){
             return connectivityManager.getActiveNetworkInfo().isAvailable();
         }
         return false;
+    }
+    public ClipboardManager getClipboardManager(){
+        return clipboardManager;
     }
 
 }

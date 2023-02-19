@@ -1,6 +1,7 @@
 package com.vitaliy.funnynumber.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vitaliy.funnynumber.App;
+import com.vitaliy.funnynumber.FactDetails;
 import com.vitaliy.funnynumber.R;
 import com.vitaliy.funnynumber.Room.History;
 
@@ -61,8 +63,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         }
     }
 
+    public static final String EXTRA_HISTORY = "FACT";
     void onElementClick(History history){
         System.out.println(history.toString());
+        Intent intent = new Intent(inflater.getContext(), FactDetails.class);
+        intent.putExtra(EXTRA_HISTORY, history);
+        inflater.getContext().startActivity(intent);
         //todo Result activity);
     }
 
